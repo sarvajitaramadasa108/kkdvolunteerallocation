@@ -50,6 +50,17 @@ export default function AllocationHome({ view = "home" }) {
     finally { setLoading(false); }
   }
 
+  async function loadStatus() {
+    setStatusLoading(true);
+    try {
+      setStatusRows(await callBackend("status.list") || []);
+    } catch (error) {
+      setMessage(error.message || "Could not load assignment status");
+    } finally {
+      setStatusLoading(false);
+    }
+  }
+
   function updateDraft(row, field, value) {
     setDrafts((current) => ({ ...current, [row.responseKey]: { ...(current[row.responseKey] || { serviceName: row.serviceName || "", category: row.category || "" }), [field]: value } }));
   }
