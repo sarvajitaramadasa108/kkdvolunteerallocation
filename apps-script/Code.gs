@@ -10,6 +10,7 @@ function route_(action, payload) {
   try {
     if (action === "registrations.list") return { ok: true, data: listRegistrations_() };
     if (action === "services.list") return { ok: true, data: listServices_() };
+    if (action === "status.list") return { ok: true, data: listStatus_() };
     if (action === "registrations.assign") return { ok: true, data: assignRegistration_(payload) };
     if (action === "setup") return { ok: true, data: setup_() };
     return { ok: false, error: "Unknown action: " + action };
@@ -27,7 +28,13 @@ function listRegistrations_() {
 function listServices_() {
   const sheet = findSheet_(SERVICE_SHEET); if (!sheet) return [];
   const values = sheet.getDataRange().getDisplayValues(); if (values.length < 2) return []; const map = serviceMap_(values[0] || []);
-  return values.slice(1).map(function(row, i) { return { serviceName: String(row[map.serviceName] || "").trim(), rowNumber: i + 2 }; }).filter(function(row) { return row.serviceName; }).sort(function(a, b) { return a.serviceName.localeCompare(b.serviceName); });
+  return values.slice(1).map(function(row, i) { return { serviceName: String(row[map.serviceName] || "").trim(), requiredCount: Number(row[5] || 0) || 0, rowNumber: i + 2 }; }).filter(function(row) { return row.serviceName; }).sort(function(a, b) { return a.serviceName.localeCompare(b.serviceName); });
+}
+
+function listStatus_() {
+  const registrations = listRegistrations_(); const allocated = {};
+  registrations.assigned.forEach(function(row) { const name = String(row.serviceName || "").trim(); if (name) allocated[name] = (allocated[name] || 0) + 1; });
+  return listServices_().map(function(service) { const allotted = allocated[service.serviceName] || 0; return { serviceName: service.serviceName, requirement: service.requiredCount || 0, allotted: allotted, remaining: Math.max((service.requiredCount || 0) - allotted, 0) }; });
 }
 
 function assignRegistration_(payload) {

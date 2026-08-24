@@ -22,6 +22,7 @@ h1, h2, p { margin-top: 0; } h1 { margin-bottom: 10px; font-size: clamp(32px, 5v
 .service-toolbar-actions { display: flex; gap: 10px; }
 .download-button { border: 0; border-radius: 999px; padding: 12px 18px; color: #fff; background: var(--green); cursor: pointer; font: 700 13px Arial, sans-serif; }
 .download-button:disabled { opacity: .5; cursor: not-allowed; }
+.status-table { min-width: 700px; } .status-table td:not(:first-child) { font-weight: 700; } .status-table .remaining { color: #a85a17; } .status-table .complete { color: var(--green); }
 .control-panel, .registration-section, .message { margin-top: 18px; border: 1px solid rgba(255,255,255,.35); border-radius: 18px; background: rgba(255,255,255,.95); box-shadow: 0 14px 36px rgba(0,0,0,.14); }
 .control-panel { display: flex; gap: 18px; align-items: center; padding: 16px 20px; } .control-panel input { flex: 1; min-width: 0; padding: 13px 16px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); } .control-panel span { color: var(--muted); font: 13px Arial, sans-serif; white-space: nowrap; }
 .message { padding: 14px 20px; color: #0d6650; font: 14px Arial, sans-serif; }
