@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 
 const CATEGORIES = ["FOLK", "Congregation", "Employee"];
 const EMPTY_DRAFT = { serviceName: "", category: "" };
@@ -12,7 +13,7 @@ async function callBackend(action, payload = {}) {
   return data.data;
 }
 
-export default function AllocationHome() {
+export default function AllocationHome({ view = "home" }) {
   const [live, setLive] = useState([]);
   const [assigned, setAssigned] = useState([]);
   const [services, setServices] = useState([]);
@@ -52,11 +53,9 @@ export default function AllocationHome() {
   }
 
   return <main className="app-shell">
-    <header className="hero"><div><p className="eyebrow">KKD Volunteer Allocation</p><h1>Live volunteer registrations</h1><p>Assign services and categories while new registrations continue to arrive in Google Sheets.</p></div><button className="refresh-button" onClick={refresh}>{loading ? "Loading..." : "Refresh"}</button></header>
-    <section className="control-panel"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by name, mobile, gender, service or category" /><span>{loading ? "Loading registrations..." : `${filteredLive.length} live · ${filteredAssigned.length} assigned`}</span></section>
-    {message ? <div className="message">{message}</div> : null}
-    <RegistrationSection title="Live registrations" description="Select a service and category, then save. The row will move to Assigned Volunteers." rows={filteredLive} services={services} drafts={drafts} updateDraft={updateDraft} saveRow={saveRow} saving={saving} assigned={false} loading={loading} />
-    <RegistrationSection title="Assigned volunteers" description="Assigned rows stay in Form Responses 1. Change service or category and save when needed." rows={filteredAssigned} services={services} drafts={drafts} updateDraft={updateDraft} saveRow={saveRow} saving={saving} assigned loading={loading} />
+    <header className="hero"><div><p className="eyebrow">KKD Volunteer Allocation</p><h1>{view === "home" ? "Volunteer allocation" : view === "live" ? "Live registrations" : "Assigned volunteers"}</h1><p>{view === "home" ? "Choose a section to manage registrations and service assignments." : "Assign services and categories while new registrations continue to arrive in Google Sheets."}</p></div>{view !== "home" ? <button className="refresh-button" onClick={refresh}>{loading ? "Loading..." : "Refresh"}</button> : null}</header>
+    <nav className="main-menu"><Link href="/">Home</Link><Link href="/live-registrations">Live Registrations</Link><Link href="/assigned-volunteers">Assigned Volunteers</Link></nav>
+    {view === "home" ? <section className="home-actions"><Link href="/live-registrations"><span>01</span><strong>Live Registrations</strong><small>View new registrations and assign service and category.</small></Link><Link href="/assigned-volunteers"><span>02</span><strong>Assigned Volunteers</strong><small>Review assigned volunteers and edit their allocation.</small></Link></section> : <><section className="control-panel"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by name, mobile, gender, service or category" /><span>{loading ? "Loading registrations..." : `${view === "live" ? filteredLive.length : filteredAssigned.length} rows`}</span></section>{message ? <div className="message">{message}</div> : null}{view === "live" ? <RegistrationSection title="Live registrations" description="Select a service and category, then save. The row will move to Assigned Volunteers." rows={filteredLive} services={services} drafts={drafts} updateDraft={updateDraft} saveRow={saveRow} saving={saving} assigned={false} loading={loading} /> : <RegistrationSection title="Assigned volunteers" description="Assigned rows stay in Form Responses 1. Change service or category and save when needed." rows={filteredAssigned} services={services} drafts={drafts} updateDraft={updateDraft} saveRow={saveRow} saving={saving} assigned loading={loading} />}</>}
   </main>;
 }
 
