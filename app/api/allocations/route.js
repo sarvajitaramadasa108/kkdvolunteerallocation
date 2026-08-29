@@ -1,4 +1,4 @@
-const APPS_SCRIPT_URL = process.env.NEW_ALLOCATIONS_APPS_SCRIPT_URL || "https://script.google.com/macros/s/AKfycbxYeEy_ClJ2EhtAJ_oI4i0tOYOsbSZcMfJRk-oHKiT5ysOlSxWguosPhAH5EynIaIw/exec";
+const APPS_SCRIPT_URL = process.env.NEW_ALLOCATIONS_APPS_SCRIPT_URL || "https://script.google.com/macros/s/AKfycbzA7jYxDYwlSFcBq7sSe5N1pbm20pUQE-uMmUGdp8ifCYsH2t9Wpk6GBY9PNYDVwFRS/exec";
 
 export async function POST(request) {
   try {
