@@ -9,4 +9,4 @@ Standalone Google Sheets-backed live registration and allocation interface.
 3. Set the Apps Script `/exec` URL as `NEW_ALLOCATIONS_APPS_SCRIPT_URL` in the separate Vercel project.
 4. Deploy this repository to Vercel.
 
-The home page contains Live Registrations and Assigned Volunteers. Assignments are written to `Assignment Map`; source rows remain in `Form responses 1`.
+Volunteer data is read from the `Volunteer Master` sheet. Assignments are written to `Assignment Map`; source rows remain in `Volunteer Master`.
