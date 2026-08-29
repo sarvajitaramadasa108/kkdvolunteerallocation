@@ -1,4 +1,4 @@
-# KKD Volunteer Allocation
+# HKVT Volunteer Allocation
 
 Standalone Google Sheets-backed live registration and allocation interface.
 
