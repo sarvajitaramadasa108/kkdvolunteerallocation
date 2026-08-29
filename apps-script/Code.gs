@@ -19,7 +19,7 @@ function route_(action, payload) {
 function response_(data) { return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON); }
 
 function listRegistrations_() {
-  const sheet = findSheet_(FORM_SHEET); if (!sheet) throw new Error('Sheet "Form responses 1" not found');
+  const sheet = findSheet_(FORM_SHEET); if (!sheet) throw new Error('Sheet "' + FORM_SHEET + '" not found');
   const values = sheet.getDataRange().getDisplayValues(); const map = formMap_(values[0] || []); const assignments = readAssignments_(); const live = []; const assigned = [];
   for (let i = 1; i < values.length; i += 1) { const row = mapRegistration_(values[i], i + 1, map); if (!row.fullName && !row.mobile) continue; const a = assignments[row.responseKey] || assignments[String(row.sourceRow)] || null; const merged = Object.assign({}, row, a || {}, { assigned: Boolean(a?.serviceName && a?.category) }); if (merged.assigned) assigned.push(merged); else live.push(merged); }
   return { live: live, assigned: assigned, syncedAt: new Date().toISOString() };
@@ -59,4 +59,4 @@ function serviceMap_(headers) { const normalized = headers.map(normalize_); cons
 function normalize_(value) { return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); }
 function assignmentSheet_() { const ss = SpreadsheetApp.openById(SPREADSHEET_ID); let sheet = findSheet_(ASSIGNMENT_SHEET); if (!sheet) sheet = ss.insertSheet(ASSIGNMENT_SHEET); if (sheet.getLastRow() === 0) sheet.appendRow(["Response Key", "Source Row", "Service Name", "Category", "Updated At"]); return sheet; }
 function findSheet_(name) { const ss = SpreadsheetApp.openById(SPREADSHEET_ID); const target = String(name || "").toLowerCase(); return ss.getSheets().find(function(sheet) { return String(sheet.getName() || "").toLowerCase() === target; }) || null; }
-function setup_() { if (!findSheet_(FORM_SHEET)) throw new Error('Sheet "Form responses 1" not found'); assignmentSheet_(); return { ready: true }; }
+function setup_() { if (!findSheet_(FORM_SHEET)) throw new Error('Sheet "' + FORM_SHEET + '" not found'); assignmentSheet_(); return { ready: true }; }
