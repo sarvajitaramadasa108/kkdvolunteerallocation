@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
 const CATEGORIES = ["FOLK", "Congregation", "Employee"];
@@ -124,7 +124,29 @@ function RegistrationSection({ title, description, rows, totalRows = rows.length
 function RegistrationRow({ row, services, drafts, updateDraft, saveRow, saving, assigned, hideReferenceServices = false, readOnlyService = false }) {
   const draft = drafts[row.responseKey] || { serviceName: row.serviceName || "", category: row.category || "" };
   const compact = hideReferenceServices || assigned;
-  return <tr><td>{row.fullName || "-"}</td><td>{row.age || "-"}</td><td>{row.mobile || "-"}</td><td>{row.gender || "-"}</td><td>{row.roundsChanting || "-"}</td>{compact ? null : <td>{row.lastYearService || "-"}</td>}<td>{row.address || "-"}</td>{compact ? null : <td>{row.thisYearService || "-"}</td>}<td>{readOnlyService ? (draft.serviceName || row.serviceName || "-") : <select value={draft.serviceName} onChange={(event) => updateDraft(row, "serviceName", event.target.value)} disabled={saving === row.responseKey}><option value="">Select service</option>{services.map((service) => <option key={service.serviceName} value={service.serviceName}>{service.serviceName}</option>)}</select>}</td><td><select className="category-select" value={draft.category} onChange={(event) => updateDraft(row, "category", event.target.value)} disabled={saving === row.responseKey}><option value="">Select category</option>{CATEGORIES.map((category) => <option key={category} value={category}>{category}</option>)}</select></td><td>{row.photo ? <a href={row.photo} target="_blank" rel="noreferrer">View photo</a> : "-"}</td><td><button className="save-button" onClick={() => saveRow(row)} disabled={saving === row.responseKey}>{saving === row.responseKey ? "Saving..." : assigned ? "Save changes" : "Assign"}</button></td></tr>;
+  return <tr><td>{row.fullName || "-"}</td><td>{row.age || "-"}</td><td>{row.mobile || "-"}</td><td>{row.gender || "-"}</td><td>{row.roundsChanting || "-"}</td>{compact ? null : <td>{row.lastYearService || "-"}</td>}<td>{row.address || "-"}</td>{compact ? null : <td>{row.thisYearService || "-"}</td>}<td>{readOnlyService ? (draft.serviceName || row.serviceName || "-") : <SearchableServiceSelect services={services} value={draft.serviceName} onChange={(value) => updateDraft(row, "serviceName", value)} disabled={saving === row.responseKey} />}</td><td><select className="category-select" value={draft.category} onChange={(event) => updateDraft(row, "category", event.target.value)} disabled={saving === row.responseKey}><option value="">Select category</option>{CATEGORIES.map((category) => <option key={category} value={category}>{category}</option>)}</select></td><td>{row.photo ? <a href={row.photo} target="_blank" rel="noreferrer">View photo</a> : "-"}</td><td><button className="save-button" onClick={() => saveRow(row)} disabled={saving === row.responseKey}>{saving === row.responseKey ? "Saving..." : assigned ? "Save changes" : "Assign"}</button></td></tr>;
+}
+
+function SearchableServiceSelect({ services, value, onChange, disabled }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const ref = useRef(null);
+  const options = services.filter((service) => service.serviceName.toLowerCase().includes(query.trim().toLowerCase()));
+
+  useEffect(() => {
+    if (!open) return undefined;
+    function close(event) { if (!ref.current?.contains(event.target)) setOpen(false); }
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [open]);
+
+  function selectService(serviceName) {
+    onChange(serviceName);
+    setQuery("");
+    setOpen(false);
+  }
+
+  return <div className="searchable-service" ref={ref}><input value={open ? query : value} onChange={(event) => { setQuery(event.target.value); setOpen(true); }} onFocus={() => { setQuery(""); setOpen(true); }} placeholder="Select service" disabled={disabled} aria-label="Search services" /><span className="searchable-arrow">▾</span>{open ? <div className="service-options">{options.length ? options.map((service) => <button type="button" key={service.serviceName} onClick={() => selectService(service.serviceName)}>{service.serviceName}</button>) : <span>No matching services</span>}</div> : null}</div>;
 }
 
 function AvailabilityCell({ value }) {
