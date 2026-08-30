@@ -27,8 +27,8 @@ function listRegistrations_() {
 
 function listServices_() {
   const sheet = findSheet_(SERVICE_SHEET); if (!sheet) return [];
-  const values = sheet.getDataRange().getDisplayValues(); if (values.length < 2) return []; const map = serviceMap_(values[0] || []);
-  return values.slice(1).map(function(row, i) { return { serviceName: String(row[map.serviceName] || "").trim(), requiredCount: Number(row[5] || 0) || 0, rowNumber: i + 2 }; }).filter(function(row) { return row.serviceName; }).sort(function(a, b) { return a.serviceName.localeCompare(b.serviceName); });
+  const values = sheet.getDataRange().getDisplayValues(); if (values.length < 2) return []; const map = serviceMap_(values[0] || []); const seen = {};
+  return values.slice(1).map(function(row, i) { return { serviceName: String(row[map.serviceName] || "").trim(), requiredCount: Number(row[5] || 0) || 0, rowNumber: i + 2 }; }).filter(function(row) { const key = row.serviceName.toLowerCase(); if (!key || seen[key]) return false; seen[key] = true; return true; }).sort(function(a, b) { return a.serviceName.localeCompare(b.serviceName); });
 }
 
 function listStatus_() {
@@ -55,7 +55,7 @@ function cell_(row, index) { return index >= 0 ? String(row[index] || "").trim()
 function availabilityValue_(value) { return String(value || "").trim() || "Not available"; }
 
 function formMap_(headers) { const normalized = headers.map(normalize_); const find = function(names, fallback) { for (let i = 0; i < normalized.length; i += 1) if (names.some(function(name) { return normalized[i] === normalize_(name); })) return i; return fallback; }; const day = function(dayNumber) { for (let i = 0; i < normalized.length; i += 1) if (normalized[i].includes("service slots") && (normalized[i].includes("0" + dayNumber) || normalized[i].includes(" " + dayNumber) || normalized[i].includes(dayNumber + "th") || normalized[i].includes(dayNumber + "nd") || normalized[i].includes(dayNumber + "rd"))) return i; for (let i = 0; i < normalized.length; i += 1) if (normalized[i].includes("availability on " + dayNumber)) return i; return -1; }; return { timestamp: find(["Timestamp"], -1), fullName: find(["Full Name", "Name"], 1), age: find(["Age"], 3), mobile: find(["Whatsapp Number", "WhatsApp Number", "Mobile Number", "Mobile"], 2), gender: find(["Gender"], 4), roundsChanting: find(["No. of Round Chanting", "No of Round Chanting"], 5), lastYearService: find(["Last year service", "Last year servicce"], 6), thisYearService: find(["This Year service", "This Year Service"], 7), address: find(["Address", "Area of Staying in Vizag", "Area"], 8), photo: find(["Photo", "Photo upload"], 9), collegeName: -1, day2: day(2), day3: day(3), day4: day(4), day5: day(5), day6: day(6) }; }
-function serviceMap_(headers) { const normalized = headers.map(normalize_); const index = normalized.findIndex(function(value) { return value === "service name" || value === "service"; }); return { serviceName: index >= 0 ? index : 1 }; }
+function serviceMap_(headers) { const normalized = headers.map(normalize_); const index = normalized.findIndex(function(value) { return value === "service name"; }); return { serviceName: index >= 0 ? index : 1 }; }
 function normalize_(value) { return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); }
 function assignmentSheet_() { const ss = SpreadsheetApp.openById(SPREADSHEET_ID); let sheet = findSheet_(ASSIGNMENT_SHEET); if (!sheet) sheet = ss.insertSheet(ASSIGNMENT_SHEET); if (sheet.getLastRow() === 0) sheet.appendRow(["Response Key", "Source Row", "Service Name", "Category", "Updated At"]); return sheet; }
 function findSheet_(name) { const ss = SpreadsheetApp.openById(SPREADSHEET_ID); const target = String(name || "").toLowerCase(); return ss.getSheets().find(function(sheet) { return String(sheet.getName() || "").toLowerCase() === target; }) || null; }
